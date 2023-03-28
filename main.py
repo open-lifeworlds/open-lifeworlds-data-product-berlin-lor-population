@@ -57,7 +57,7 @@ def main(argv):
     blend_data(source_path=workspace_path, results_path=workspace_path, clean=clean, quiet=quiet)
 
     #
-    # Transform
+    # Load
     #
 
     load_data(source_path=workspace_path, results_path=data_path, clean=clean, quiet=quiet)

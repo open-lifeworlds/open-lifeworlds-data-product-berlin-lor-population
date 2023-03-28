@@ -7,6 +7,8 @@ script_path = os.path.dirname(file_path)
 
 data_path = os.path.join(script_path, "..", "..", "data")
 
+key_figure_group = "berlin-lor-population"
+
 statistic_t1_properties = [
     "inhabitants",
     "inhabitants_with_migration_background",
@@ -80,11 +82,11 @@ class FilesTestCase(unittest.TestCase):
 for year in [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022]:
     for half_year in ["01", "02"]:
         for lor_area_type in ["districts", "forecast-areas", "district-regions", "planning-areas"]:
-            file = os.path.join(data_path, f"berlin-lor-population-{year}-{half_year}",
-                                f"berlin-lor-population-{year}-{half_year}-{lor_area_type}.geojson")
+            file = os.path.join(data_path, f"{key_figure_group}-{year}-{half_year}",
+                                f"{key_figure_group}-{year}-{half_year}-{lor_area_type}.geojson")
             setattr(
                 FilesTestCase,
-                f"test_berlin_lor_population_{year}_{half_year}_{lor_area_type.replace('-', '_')}",
+                f"test_{key_figure_group}_{year}_{half_year}_{lor_area_type}".replace('-', '_'),
                 lambda self, file=file: self.assertTrue(os.path.exists(file))
             )
 
@@ -96,18 +98,17 @@ class PropertiesTestCase(unittest.TestCase):
 for year in [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022]:
     for half_year in ["01", "02"]:
         for lor_area_type in ["districts", "forecast-areas", "district-regions", "planning-areas"]:
-            file = os.path.join(data_path, f"berlin-lor-population-{year}-{half_year}",
-                                f"berlin-lor-population-{year}-{half_year}-{lor_area_type}.geojson")
+            file = os.path.join(data_path, f"{key_figure_group}-{year}-{half_year}",
+                                f"{key_figure_group}-{year}-{half_year}-{lor_area_type}.geojson")
             if os.path.exists(file):
-                with open(file=file, mode="r",
-                          encoding="utf-8") as geojson_file:
+                with open(file=file, mode="r", encoding="utf-8") as geojson_file:
                     geojson = json.load(geojson_file, strict=False)
 
                 for feature in geojson["features"]:
                     feature_id = feature["properties"]["id"]
                     setattr(
                         PropertiesTestCase,
-                        f"test_berlin_lor_population_{year}_{half_year}_{lor_area_type.replace('-', '_')}_{feature_id}",
+                        f"test_{key_figure_group}_{year}_{half_year}_{lor_area_type}_{feature_id}".replace('-', '_'),
                         lambda self, feature=feature: self.assertTrue(
                             all(property in feature["properties"] for property in statistic_properties))
                     )

@@ -7,8 +7,8 @@ from lib.tracking_decorator import TrackingDecorator
 @TrackingDecorator.track_time
 def copy_data(source_path, results_path, clean=False, quiet=False):
     # Iterate over files
-    for subdir, dirs, files in os.walk(source_path):
-        for source_file_name in files:
+    for subdir, dirs, files in sorted(os.walk(source_path)):
+        for source_file_name in sorted(files):
             subdir = subdir.replace(f"{source_path}/", "")
             results_file_name = get_results_file_name(source_file_name)
 

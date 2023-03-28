@@ -7,8 +7,8 @@ from lib.tracking_decorator import TrackingDecorator
 @TrackingDecorator.track_time
 def convert_data_to_csv(source_path, results_path, clean=False, quiet=False):
     # Iterate over files
-    for subdir, dirs, files in os.walk(source_path):
-        for file_name in files:
+    for subdir, dirs, files in sorted(os.walk(source_path)):
+        for file_name in sorted(files):
             subdir = subdir.replace(f"{source_path}/", "")
 
             # Make results path

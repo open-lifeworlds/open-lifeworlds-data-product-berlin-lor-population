@@ -7,8 +7,8 @@ from lib.tracking_decorator import TrackingDecorator
 @TrackingDecorator.track_time
 def load_data(source_path, results_path, clean=False, quiet=False):
     # Iterate over files
-    for subdir, dirs, files in os.walk(source_path):
-        for file_name in files:
+    for subdir, dirs, files in sorted(os.walk(source_path)):
+        for file_name in sorted(files):
             _, file_extension = os.path.splitext(file_name)
 
             if file_extension in [".geojson", ".csv", ".json"] \

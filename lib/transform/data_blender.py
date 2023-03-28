@@ -555,8 +555,8 @@ def read_csv_file(file_path):
 
 
 def read_geojson_file(file_path):
-    with open(file_path, "r") as geojson_file:
-        return json.load(geojson_file)
+    with open(file=file_path, mode="r", encoding="utf-8") as geojson_file:
+        return json.load(geojson_file, strict=False)
 
 
 def write_geojson_file(file_path, statistic_name, geojson_content, clean, quiet):
@@ -566,8 +566,8 @@ def write_geojson_file(file_path, statistic_name, geojson_content, clean, quiet)
 
         os.makedirs(os.path.join(path_name), exist_ok=True)
 
-        with open(file_path, "w") as geojson_file:
-            json.dump(geojson_content, geojson_file)
+        with open(file_path, "w", encoding="utf-8") as geojson_file:
+            json.dump(geojson_content, geojson_file, ensure_ascii=False)
 
             if not quiet:
                 print(f"✓ Blend data from {statistic_name} into {file_name}")
@@ -580,8 +580,8 @@ def write_json_file(file_path, statistic_name, json_content, clean, quiet):
 
         os.makedirs(os.path.join(path_name), exist_ok=True)
 
-        with open(file_path, "w") as json_file:
-            json.dump(json_content, json_file)
+        with open(file_path, "w", encoding="utf-8") as json_file:
+            json.dump(json_content, json_file, ensure_ascii=False)
 
             if not quiet:
                 print(f"✓ Aggregate data from {statistic_name} into {file_name}")
@@ -897,7 +897,7 @@ def blend_data_into_feature(feature, area_sqkm, statistic_t1, statistic_t2, stat
 
 
 def add_property(feature, statistics, property_name):
-    if property_name in statistics:
+    if statistics is not None and property_name in statistics:
         try:
             feature["properties"][f"{property_name}"] = float(statistics[property_name])
         except ValueError:
@@ -905,7 +905,7 @@ def add_property(feature, statistics, property_name):
 
 
 def add_property_with_modifiers(feature, statistics, property_name, inhabitants, total_area_sqkm):
-    if property_name in statistics:
+    if statistics is not None and property_name in statistics:
         try:
             feature["properties"][f"{property_name}"] = float(statistics[property_name].sum())
             if inhabitants is not None:
