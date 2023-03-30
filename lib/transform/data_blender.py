@@ -331,34 +331,33 @@ def read_geojson_file(file_path):
 
 def write_geojson_file(file_path, statistic_name, geojson_content, clean, quiet):
     if not os.path.exists(file_path) or clean:
-        path_name = os.path.dirname(file_path)
-        file_name = os.path.basename(file_path)
 
+        # Make results path
+        path_name = os.path.dirname(file_path)
         os.makedirs(os.path.join(path_name), exist_ok=True)
 
         with open(file_path, "w", encoding="utf-8") as geojson_file:
             json.dump(geojson_content, geojson_file, ensure_ascii=False)
 
             if not quiet:
-                print(f"✓ Blend data from {statistic_name} into {file_name}")
+                print(f"✓ Blend data from {statistic_name} into {os.path.basename(file_path)}")
 
 
 def write_json_file(file_path, statistic_name, json_content, clean, quiet):
     if not os.path.exists(file_path) or clean:
-        path_name = os.path.dirname(file_path)
-        file_name = os.path.basename(file_path)
 
+        # Make results path
+        path_name = os.path.dirname(file_path)
         os.makedirs(os.path.join(path_name), exist_ok=True)
 
         with open(file_path, "w", encoding="utf-8") as json_file:
             json.dump(json_content, json_file, ensure_ascii=False)
 
             if not quiet:
-                print(f"✓ Aggregate data from {statistic_name} into {file_name}")
+                print(f"✓ Aggregate data from {statistic_name} into {os.path.basename(file_path)}")
 
 
-def extend_districts(statistics, year, half_year,
-                     statistic_name, statistic, geojson):
+def extend_districts(statistics, year, half_year, statistic_name, statistic, geojson):
     geojson_extended = copy.deepcopy(geojson)
 
     # Check if file needs to be created
@@ -570,7 +569,7 @@ def blend_data_into_feature(feature, area_sqkm, statistic):
 def add_property(feature, statistics, property_name):
     if statistics is not None and property_name in statistics:
         try:
-            feature["properties"][f"{property_name}"] = float(statistics[property_name])
+            feature["properties"][f"{property_name}"] = float(statistics[property_name].item())
         except ValueError:
             feature["properties"][f"{property_name}"] = 0
 
@@ -578,17 +577,22 @@ def add_property(feature, statistics, property_name):
 def add_property_with_modifiers(feature, statistics, property_name, inhabitants, total_area_sqkm):
     if statistics is not None and property_name in statistics:
         try:
-            feature["properties"][f"{property_name}"] = float(statistics[property_name].sum())
+            feature["properties"][f"{property_name}"] = float(statistics[property_name].item())
             if inhabitants is not None:
                 feature["properties"][f"{property_name}_percentage"] = round(
-                    float(statistics[property_name].sum()) / inhabitants * 100, 2)
+                    float(statistics[property_name].item()) / inhabitants * 100, 2)
             if total_area_sqkm is not None:
                 feature["properties"][f"{property_name}_per_sqkm"] = round(
-                    float(statistics[property_name].sum()) / total_area_sqkm)
+                    float(statistics[property_name].item()) / total_area_sqkm)
         except ValueError:
             feature["properties"][f"{property_name}"] = 0
 
             if inhabitants is not None:
                 feature["properties"][f"{property_name}_percentage"] = 0
+            if total_area_sqkm is not None:
+                feature["properties"][f"{property_name}_per_sqkm"] = 0
+        except TypeError:
+            feature["properties"][f"{property_name}"] = 0
+
             if total_area_sqkm is not None:
                 feature["properties"][f"{property_name}_per_sqkm"] = 0

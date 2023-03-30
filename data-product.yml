@@ -56,7 +56,7 @@ metadata:
       - inhabitants_from_vietnam: number of inhabitants from Vietnam
       - inhabitants_from_united_states: number of inhabitants from United States
       - inhabitants_from_undefined: number of inhabitants from an undefined country
-description:
+description: This data product provides Berlin population data on different LOR hierarchy levels
 input_ports:
   - id: berlin-lor-geodata
     metadata:

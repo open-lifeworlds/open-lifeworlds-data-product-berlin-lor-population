@@ -9,14 +9,13 @@ from lib.tracking_decorator import TrackingDecorator
 def convert_data_to_csv(source_path, results_path, clean=False, quiet=False):
     # Iterate over files
     for subdir, dirs, files in sorted(os.walk(source_path)):
+
+        # Make results path
+        subdir = subdir.replace(f"{source_path}/", "")
+        os.makedirs(os.path.join(results_path, subdir), exist_ok=True)
+
         for file_name in sorted(files):
-            subdir = subdir.replace(f"{source_path}/", "")
-
-            # Make results path
-            os.makedirs(os.path.join(results_path, subdir), exist_ok=True)
-
             source_file_path = os.path.join(source_path, subdir, file_name)
-
             convert_file_to_csv(source_file_path, clean=clean, quiet=quiet)
 
 
@@ -38,10 +37,10 @@ def convert_file_to_csv(source_file_path, clean=False, quiet=False):
         drop_columns = []
 
         try:
+            dataframes = []
+
             sheets = ["T1a", "T2a", "T3a", "T4a"] \
                 if "berlin-lor-population-2020-02" in source_file_name else ["T1", "T2", "T3", "T4"]
-
-            dataframes = []
 
             # Iterate over sheets
             for sheet in sheets:
@@ -107,31 +106,29 @@ def convert_file_to_csv(source_file_path, clean=False, quiet=False):
                 dataframes.append(
                     pd.read_excel(source_file_path, engine=engine, sheet_name=sheet, skiprows=skiprows,
                                   usecols=list(range(0, len(names))), names=names)
-                        .dropna()
                         .drop(columns=drop_columns, errors="ignore")
+                        .dropna()
                         .assign(id=lambda df: df[["district", "forecast_area", "district_region", "planning_area"]]
                                 .apply(lambda row: ''.join(map(str, pd.to_numeric(row, errors='coerce')
                                                                .fillna(-1)
                                                                .astype(int)
                                                                .apply(lambda x: str(x).zfill(2)))), axis=1))
-                        .drop(columns=["district", "forecast_area", "district_region", "planning_area"],
-                              errors="ignore")
+                        .drop(columns=["district", "forecast_area", "district_region", "planning_area"], errors="ignore")
                 )
 
             # Concatenate data frames
-            dataframe = pd.concat([df.set_index("id") for df in dataframes], axis=1).reset_index()
+            dataframe = pd.concat([df.set_index("id") for df in dataframes], axis=1).reset_index().dropna()
 
             # Write csv file
             if dataframe.shape[0] > 0:
                 dataframe.to_csv(file_path_csv, index=False)
                 if not quiet:
-                    print(f"✓ Convert {file_path_csv}")
+                    print(f"✓ Convert {os.path.basename(file_path_csv)}")
             else:
                 if not quiet:
                     print(dataframe.head())
-                    print(f"✗️ Empty {file_path_csv}")
+                    print(f"✗️ Empty {os.path.basename(file_path_csv)}")
         except Exception as e:
             print(f"✗️ Exception: {str(e)}")
-            return None
     elif not quiet:
-        print(f"✓ Already exists {file_path_csv}")
+        print(f"✓ Already exists {os.path.basename(file_path_csv)}")

@@ -9,16 +9,13 @@ data_path = os.path.join(script_path, "..", "..", "data")
 
 key_figure_group = "berlin-lor-population"
 
-statistic_t1_properties = [
+statistic_properties = [
     "inhabitants",
     "inhabitants_with_migration_background",
     "inhabitants_germans",
     "inhabitants_germans_without_migration_background",
     "inhabitants_germans_with_migration_background",
-    "inhabitants_foreigners"
-]
-
-statistic_t2_properties = [
+    "inhabitants_foreigners",
     "inhabitants_age_below_6",
     "inhabitants_age_6_15",
     "inhabitants_age_15_18",
@@ -27,10 +24,7 @@ statistic_t2_properties = [
     "inhabitants_age_45_55",
     "inhabitants_age_55_65",
     "inhabitants_age_above_65",
-    "inhabitants_female"
-]
-
-statistic_t3_properties = [
+    "inhabitants_female",
     "inhabitants_with_migration_background_age_below_6",
     "inhabitants_with_migration_background_age_6_15",
     "inhabitants_with_migration_background_age_15_18",
@@ -39,10 +33,7 @@ statistic_t3_properties = [
     "inhabitants_with_migration_background_age_45_55",
     "inhabitants_with_migration_background_age_55_65",
     "inhabitants_with_migration_background_age_above_65",
-    "inhabitants_with_migration_background_female"
-]
-
-statistic_t4_properties = [
+    "inhabitants_with_migration_background_female",
     "inhabitants_from_european_union",
     "inhabitants_from_france",
     "inhabitants_from_greece",
@@ -71,8 +62,6 @@ statistic_t4_properties = [
     "inhabitants_from_united_states",
     "inhabitants_from_undefined"
 ]
-
-statistic_properties = statistic_t1_properties + statistic_t2_properties + statistic_t3_properties + statistic_t4_properties
 
 
 class FilesTestCase(unittest.TestCase):
