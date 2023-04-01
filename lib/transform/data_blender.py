@@ -569,7 +569,7 @@ def blend_data_into_feature(feature, area_sqkm, statistic):
 def add_property(feature, statistics, property_name):
     if statistics is not None and property_name in statistics:
         try:
-            feature["properties"][f"{property_name}"] = float(statistics[property_name].item())
+            feature["properties"][f"{property_name}"] = float(statistics[property_name].sum())
         except ValueError:
             feature["properties"][f"{property_name}"] = 0
 
@@ -577,13 +577,13 @@ def add_property(feature, statistics, property_name):
 def add_property_with_modifiers(feature, statistics, property_name, inhabitants, total_area_sqkm):
     if statistics is not None and property_name in statistics:
         try:
-            feature["properties"][f"{property_name}"] = float(statistics[property_name].item())
+            feature["properties"][f"{property_name}"] = float(statistics[property_name].sum())
             if inhabitants is not None:
                 feature["properties"][f"{property_name}_percentage"] = round(
-                    float(statistics[property_name].item()) / inhabitants * 100, 2)
+                    float(statistics[property_name].sum()) / inhabitants * 100, 2)
             if total_area_sqkm is not None:
                 feature["properties"][f"{property_name}_per_sqkm"] = round(
-                    float(statistics[property_name].item()) / total_area_sqkm)
+                    float(statistics[property_name].sum()) / total_area_sqkm)
         except ValueError:
             feature["properties"][f"{property_name}"] = 0
 
