@@ -1,10 +1,8 @@
 import json
 import os
 import re
-import statistics as stats
 
 import pandas as pd
-from tqdm import tqdm
 
 from lib.tracking_decorator import TrackingDecorator
 
@@ -90,16 +88,13 @@ def blend_data(source_path, results_path, clean=False, quiet=False):
     os.makedirs(os.path.join(results_path), exist_ok=True)
 
     # Initialize statistics
-    json_statistics_all = {}
+    json_statistics = {}
 
     # Iterate over LOR area types
     for lor_area_type in ["districts", "forecast-areas", "district-regions", "planning-areas"]:
 
-        # Initialize statistics
-        json_statistics = {}
-
         # Iterate over statistics
-        for statistics_name in tqdm(sorted(statistics), desc=f"Blend statistics for {lor_area_type}", unit="statistic"):
+        for statistics_name in sorted(statistics):
             year = re.search(r"\b\d{4}\b", statistics_name).group()
             half_year = re.search(r"\b\d{2}(?<!\d{4})\b", statistics_name).group()
 
@@ -125,9 +120,8 @@ def blend_data(source_path, results_path, clean=False, quiet=False):
                 half_year=half_year,
                 geojson=geojson,
                 statistics_name=statistics_name,
-                statistics=csv_statistics,
-                json_statistics=json_statistics,
-                json_statistics_all=json_statistics_all
+                csv_statistics=csv_statistics,
+                json_statistics=json_statistics
             )
 
             # Write geojson file
@@ -140,25 +134,137 @@ def blend_data(source_path, results_path, clean=False, quiet=False):
                 quiet=quiet
             )
 
-        # Write json statistics file
-        write_json_file(
-            file_path=os.path.join(results_path, f"{key_figure_group}-statistics",
-                                   f"{key_figure_group}-{lor_area_type}-statistics.json"),
-            statistic_name=f"{key_figure_group}-{lor_area_type}-statistics",
-            json_content=json_statistics,
-            clean=clean,
-            quiet=quiet
-        )
-
     # Write json statistics file
     write_json_file(
         file_path=os.path.join(results_path, f"{key_figure_group}-statistics",
                                f"{key_figure_group}-statistics.json"),
         statistic_name=f"{key_figure_group}-statistics",
-        json_content=json_statistics_all,
+        json_content=json_statistics,
         clean=clean,
         quiet=quiet
     )
+
+
+def extend(year, half_year, geojson, statistics_name, csv_statistics, json_statistics):
+    """
+    Extends geojson and json-statistics by statistical values
+    :param year:
+    :param half_year:
+    :param geojson:
+    :param statistics_name:
+    :param csv_statistics:
+    :param json_statistics:
+    :return:
+    """
+
+    # Check for missing files
+    if csv_statistics is None:
+        print(f"✗️ No data in {statistics_name}")
+
+    # Iterate over features
+    for feature in sorted(geojson["features"], key=lambda feature: feature["properties"]["id"]):
+        feature_id = feature["properties"]["id"]
+        area_sqm = feature["properties"]["area"]
+        area_sqkm = area_sqm / 1_000_000
+
+        # Filter statistics
+        statistic_filtered = csv_statistics[csv_statistics["id"].astype(str).str.startswith(feature_id)]
+
+        # Check for missing data
+        if statistic_filtered.shape[0] == 0 or \
+                int(statistic_filtered["inhabitants"].sum()) == 0 or \
+                int(statistic_filtered["inhabitants_with_migration_background"].sum()) == 0:
+            print(f"✗️ No data in {statistics_name} for id={feature_id}")
+            continue
+
+        # Blend data
+        blend_data_into_feature(feature, statistic_filtered, area_sqkm)
+        blend_data_into_json(year, half_year, feature_id, feature, json_statistics)
+
+    # Calculate averages
+    calculate_averages(year, half_year, geojson, csv_statistics, json_statistics)
+
+
+def blend_data_into_feature(feature, statistics, area_sqkm):
+    # Lookup data
+    inhabitants = statistics["inhabitants"].sum()
+
+    # Add new properties
+    for property_name in statistic_properties:
+        add_property_with_modifiers(feature, statistics, property_name, inhabitants, area_sqkm)
+
+    return feature
+
+
+def blend_data_into_json(year, half_year, feature_id, feature, json_statistics):
+    # Build structure
+    if year not in json_statistics:
+        json_statistics[year] = {}
+    if half_year not in json_statistics[year]:
+        json_statistics[year][half_year] = {}
+
+    # Add properties
+    json_statistics[year][half_year][feature_id] = feature["properties"]
+
+
+def calculate_averages(year, half_year, geojson, csv_statistics, json_statistics):
+    # Calculate total values
+    total_inhabitants = get_total_inhabitants(csv_statistics)
+    total_sqkm = get_total_sqkm(geojson)
+
+    values = {}
+
+    # Iterate over properties
+    for property_name in [property_name for property_name in statistic_properties if property_name in csv_statistics]:
+        values[property_name] = sum(csv_statistics[property_name])
+
+    json_statistics[year][half_year]["total"] = values
+    json_statistics[year][half_year]["total_percentage"] = \
+        {property_name: round(float(total / total_inhabitants * 100), 2) for property_name, total in values.items()}
+    json_statistics[year][half_year]["total_per_sqkm"] = \
+        {property_name: total / total_sqkm for property_name, total in values.items()}
+
+
+def add_property(feature, statistics, property_name):
+    if statistics is not None and property_name in statistics:
+        try:
+            feature["properties"][f"{property_name}"] = float(statistics[property_name].sum())
+        except ValueError:
+            feature["properties"][f"{property_name}"] = 0
+
+
+def add_property_with_modifiers(feature, statistics, property_name, inhabitants, area_sqkm):
+    if statistics is not None and property_name in statistics:
+        try:
+            feature["properties"][f"{property_name}"] = float(statistics[property_name].sum())
+            if inhabitants is not None:
+                feature["properties"][f"{property_name}_percentage"] = round(
+                    float(statistics[property_name].sum()) / inhabitants * 100, 2)
+            if area_sqkm is not None:
+                feature["properties"][f"{property_name}_per_sqkm"] = round(
+                    float(statistics[property_name].sum()) / area_sqkm, 2)
+        except ValueError:
+            feature["properties"][f"{property_name}"] = 0
+
+            if inhabitants is not None:
+                feature["properties"][f"{property_name}_percentage"] = 0
+            if area_sqkm is not None:
+                feature["properties"][f"{property_name}_per_sqkm"] = 0
+        except TypeError:
+            feature["properties"][f"{property_name}"] = 0
+
+            if inhabitants is not None:
+                feature["properties"][f"{property_name}_percentage"] = 0
+            if area_sqkm is not None:
+                feature["properties"][f"{property_name}_per_sqkm"] = 0
+
+
+def get_total_inhabitants(csv_statistics):
+    return sum(csv_statistics["inhabitants"])
+
+
+def get_total_sqkm(geojson):
+    return sum(feature["properties"]["area"] / 1_000_000 for feature in geojson["features"])
 
 
 def read_csv_file(file_path):
@@ -200,116 +306,3 @@ def write_json_file(file_path, statistic_name, json_content, clean, quiet):
 
             if not quiet:
                 print(f"✓ Aggregate data from {statistic_name} into {os.path.basename(file_path)}")
-
-
-def extend(year, half_year, geojson, statistics_name, statistics, json_statistics, json_statistics_all):
-    """
-    Extends geojson and json-statistics by statistical values
-    :param year:
-    :param half_year:
-    :param geojson:
-    :param statistics_name:
-    :param statistics:
-    :param json_statistics:
-    :param json_statistics_all:
-    :return:
-    """
-
-    # Check for missing files
-    if statistics is None:
-        print(f"✗️ No data in {statistics_name}")
-
-    # Check if file needs to be created
-    for feature in sorted(geojson["features"], key=lambda feature: feature["properties"]["id"]):
-        feature_id = feature["properties"]["id"]
-        area_sqm = feature["properties"]["area"]
-        area_sqkm = area_sqm / 1_000_000
-
-        # Filter statistics
-        statistic_filtered = statistics[statistics["id"].astype(str).str.startswith(feature_id)]
-
-        # Check for missing data
-        if statistic_filtered.shape[0] == 0 or \
-                int(statistic_filtered["inhabitants"].sum()) == 0 or \
-                int(statistic_filtered["inhabitants_with_migration_background"].sum()) == 0:
-            print(f"✗️ No data in {statistics_name} for id={feature_id}")
-            continue
-
-        # Blend data
-        blend_data_into_feature(feature, statistic_filtered, area_sqkm)
-        blend_data_into_json(year, half_year, feature_id, feature, json_statistics)
-        blend_data_into_json(year, half_year, feature_id, feature, json_statistics_all)
-
-    # Calculate averages and median
-    calculate_average_and_median(json_statistics)
-    calculate_average_and_median(json_statistics_all)
-
-
-def blend_data_into_feature(feature, statistics, area_sqkm):
-    # Lookup data
-    inhabitants = statistics["inhabitants"].sum()
-
-    # Add new properties
-    for property_name in statistic_properties:
-        add_property_with_modifiers(feature, statistics, property_name, inhabitants, area_sqkm)
-
-    return feature
-
-
-def blend_data_into_json(year, half_year, feature_id, feature, json_statistics):
-    # Build structure
-    if year not in json_statistics:
-        json_statistics[year] = {}
-    if half_year not in json_statistics[year]:
-        json_statistics[year][half_year] = {}
-
-    # Add properties
-    json_statistics[year][half_year][feature_id] = feature["properties"]
-
-
-def calculate_average_and_median(json_statistics):
-    for year, half_years in json_statistics.items():
-        for half_year, feature_ids in half_years.items():
-            values = {}
-
-            for feature_id, properties in feature_ids.items():
-                for property_name, property_value in properties.items():
-                    if property_name in statistic_properties:
-                        if property_name not in values:
-                            values[property_name] = []
-                        values[property_name].append(property_value)
-
-            json_statistics[year][half_year]["average"] = {key: stats.mean(lst) for key, lst in values.items()}
-            json_statistics[year][half_year]["median"] = {key: stats.median(lst) for key, lst in values.items()}
-
-
-def add_property(feature, statistics, property_name):
-    if statistics is not None and property_name in statistics:
-        try:
-            feature["properties"][f"{property_name}"] = float(statistics[property_name].sum())
-        except ValueError:
-            feature["properties"][f"{property_name}"] = 0
-
-
-def add_property_with_modifiers(feature, statistics, property_name, inhabitants, total_area_sqkm):
-    if statistics is not None and property_name in statistics:
-        try:
-            feature["properties"][f"{property_name}"] = float(statistics[property_name].sum())
-            if inhabitants is not None:
-                feature["properties"][f"{property_name}_percentage"] = round(
-                    float(statistics[property_name].sum()) / inhabitants * 100, 2)
-            if total_area_sqkm is not None:
-                feature["properties"][f"{property_name}_per_sqkm"] = round(
-                    float(statistics[property_name].sum()) / total_area_sqkm, 2)
-        except ValueError:
-            feature["properties"][f"{property_name}"] = 0
-
-            if inhabitants is not None:
-                feature["properties"][f"{property_name}_percentage"] = 0
-            if total_area_sqkm is not None:
-                feature["properties"][f"{property_name}_per_sqkm"] = 0
-        except TypeError:
-            feature["properties"][f"{property_name}"] = 0
-
-            if total_area_sqkm is not None:
-                feature["properties"][f"{property_name}_per_sqkm"] = 0
