@@ -140,10 +140,7 @@ Additionally, data blended into geojson is available under the following URLs
 
 Additionally, statistics are available under the following URLs
 
-* [berlin-lor-population-statistics/berlin-lor-population-districts-statistics.json](https://raw.githubusercontent.com/open-lifeworlds/open-lifeworlds-data-product-berlin-lor-population/main/data/berlin-lor-population-statistics/berlin-lor-population-districts-statistics.json)
-* [berlin-lor-population-statistics/berlin-lor-population-forecast-areas-statistics.json](https://raw.githubusercontent.com/open-lifeworlds/open-lifeworlds-data-product-berlin-lor-population/main/data/berlin-lor-population-statistics/berlin-lor-population-forecast-areas-statistics.json)
-* [berlin-lor-population-statistics/berlin-lor-population-district-regions-statistics.json](https://raw.githubusercontent.com/open-lifeworlds/open-lifeworlds-data-product-berlin-lor-population/main/data/berlin-lor-population-statistics/berlin-lor-population-district-regions-statistics.json)
-* [berlin-lor-population-statistics/berlin-lor-population-planning-areas-statistics.json](https://raw.githubusercontent.com/open-lifeworlds/open-lifeworlds-data-product-berlin-lor-population/main/data/berlin-lor-population-statistics/berlin-lor-population-planning-areas-statistics.json)
+* [berlin-lor-population-statistics/berlin-lor-population-statistics.json](https://raw.githubusercontent.com/open-lifeworlds/open-lifeworlds-data-product-berlin-lor-population/main/data/berlin-lor-population-statistics/berlin-lor-population-statistics.json)
 
 ## Metadata
 
