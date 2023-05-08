@@ -160,6 +160,7 @@ def extend(year, half_year, geojson, statistics_name, csv_statistics, json_stati
     # Check for missing files
     if csv_statistics is None:
         print(f"✗️ No data in {statistics_name}")
+        return
 
     # Iterate over features
     for feature in sorted(geojson["features"], key=lambda feature: feature["properties"]["id"]):
