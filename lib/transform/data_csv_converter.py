@@ -57,6 +57,11 @@ def convert_file_to_csv(source_file_path, clean=False, quiet=False):
                         "inhabitants_germans_with_migration_background_percentage",
                         "inhabitants_foreigners", "inhabitants_foreigners_percentage"
                     ]
+                    drop_columns = [
+                        "inhabitants_percentage", "inhabitants_with_migration_background_percentage",
+                        "inhabitants_germans_percentage", "inhabitants_germans_without_migration_background_percentage",
+                        "inhabitants_germans_with_migration_background_percentage", "inhabitants_foreigners_percentage"
+                    ]
                 elif "T2" in sheet or "T2a" in sheet:
                     skiprows = 4
                     names = [
@@ -108,12 +113,14 @@ def convert_file_to_csv(source_file_path, clean=False, quiet=False):
                                   usecols=list(range(0, len(names))), names=names)
                         .drop(columns=drop_columns, errors="ignore")
                         .dropna()
+                        .astype(int)
                         .assign(id=lambda df: df[["district", "forecast_area", "district_region", "planning_area"]]
                                 .apply(lambda row: ''.join(map(str, pd.to_numeric(row, errors='coerce')
                                                                .fillna(-1)
                                                                .astype(int)
                                                                .apply(lambda x: str(x).zfill(2)))), axis=1))
-                        .drop(columns=["district", "forecast_area", "district_region", "planning_area"], errors="ignore")
+                        .drop(columns=["district", "forecast_area", "district_region", "planning_area"],
+                              errors="ignore")
                 )
 
             # Concatenate data frames

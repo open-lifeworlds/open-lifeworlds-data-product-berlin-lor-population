@@ -215,15 +215,16 @@ def calculate_averages(year, half_year, geojson, csv_statistics, json_statistics
 
     values = {}
 
-    # Iterate over properties
-    for property_name in [property_name for property_name in statistic_properties if property_name in csv_statistics]:
-        values[property_name] = sum(csv_statistics[property_name])
+    values |= {property_name: int(sum(csv_statistics[property_name])) for property_name in statistic_properties if
+               property_name in csv_statistics}
+    if total_inhabitants is not None:
+        values |= {f"{property_name}_percentage": round(float(total / total_inhabitants * 100), 2)
+                   for property_name, total in values.items()}
+    if total_sqkm is not None:
+        values |= {f"{property_name}_per_sqkm": round(float(total / total_sqkm), 2)
+                   for property_name, total in values.items()}
 
-    json_statistics[year][half_year]["total"] = values
-    json_statistics[year][half_year]["total_percentage"] = \
-        {property_name: round(float(total / total_inhabitants * 100), 2) for property_name, total in values.items()}
-    json_statistics[year][half_year]["total_per_sqkm"] = \
-        {property_name: total / total_sqkm for property_name, total in values.items()}
+    json_statistics[year][half_year][0] = values
 
 
 def add_property(feature, statistics, property_name):
@@ -237,7 +238,7 @@ def add_property(feature, statistics, property_name):
 def add_property_with_modifiers(feature, statistics, property_name, inhabitants, area_sqkm):
     if statistics is not None and property_name in statistics:
         try:
-            feature["properties"][f"{property_name}"] = float(statistics[property_name].sum())
+            feature["properties"][f"{property_name}"] = int(statistics[property_name].sum())
             if inhabitants is not None:
                 feature["properties"][f"{property_name}_percentage"] = round(
                     float(statistics[property_name].sum()) / inhabitants * 100, 2)
