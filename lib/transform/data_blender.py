@@ -215,14 +215,19 @@ def calculate_averages(year, half_year, geojson, csv_statistics, json_statistics
 
     values = {}
 
-    values |= {property_name: int(sum(csv_statistics[property_name])) for property_name in statistic_properties if
-               property_name in csv_statistics}
+    values_sums = {property_name: int(sum(csv_statistics[property_name])) for property_name in statistic_properties if
+                   property_name in csv_statistics}
+    values_averages = {}
+
     if total_inhabitants is not None:
-        values |= {f"{property_name}_percentage": round(float(total / total_inhabitants * 100), 2)
-                   for property_name, total in values.items()}
+        values_averages |= {f"{property_name}_percentage": round(float(total / total_inhabitants * 100), 2)
+                            for property_name, total in values_sums.items()}
     if total_sqkm is not None:
-        values |= {f"{property_name}_per_sqkm": round(float(total / total_sqkm), 2)
-                   for property_name, total in values.items()}
+        values_averages |= {f"{property_name}_per_sqkm": round(float(total / total_sqkm), 2) for property_name, total in
+                            values_sums.items()}
+
+    values |= values_sums
+    values |= values_averages
 
     json_statistics[year][half_year][0] = values
 
