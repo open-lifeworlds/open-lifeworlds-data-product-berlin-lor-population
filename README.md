@@ -9,7 +9,7 @@
   <h1 align="center">Open Lifeworlds Data Product - Berlin LOR population</h1>
 
   <p align="center">
-    Data product providing Berlin LOR population data</a> 
+    Consumer-aligned data product combining Berlin LOR population data and geodata</a> 
   </p>
 </p>
 
