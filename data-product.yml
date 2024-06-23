@@ -97,6 +97,7 @@ input_ports:
       - https://raw.githubusercontent.com/open-lifeworlds/open-lifeworlds-data-product-berlin-lor-population-source-aligned/main/data/berlin-lor-population-2021-02/berlin-lor-population-2021-02.csv
       - https://raw.githubusercontent.com/open-lifeworlds/open-lifeworlds-data-product-berlin-lor-population-source-aligned/main/data/berlin-lor-population-2022-01/berlin-lor-population-2022-01.csv
       - https://raw.githubusercontent.com/open-lifeworlds/open-lifeworlds-data-product-berlin-lor-population-source-aligned/main/data/berlin-lor-population-2022-02/berlin-lor-population-2022-02.csv
+      - https://raw.githubusercontent.com/open-lifeworlds/open-lifeworlds-data-product-berlin-lor-population-source-aligned/main/data/berlin-lor-population-2023-01/berlin-lor-population-2023-01.csv
 output_ports:
   - id: berlin-lor-population-geojson
     metadata:

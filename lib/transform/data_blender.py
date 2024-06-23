@@ -78,7 +78,8 @@ statistics = [
     f"{key_figure_group}-2021-01",
     f"{key_figure_group}-2021-02",
     f"{key_figure_group}-2022-01",
-    f"{key_figure_group}-2022-02"
+    f"{key_figure_group}-2022-02",
+    f"{key_figure_group}-2023-01"
 ]
 
 

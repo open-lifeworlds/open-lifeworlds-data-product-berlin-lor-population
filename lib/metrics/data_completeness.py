@@ -68,7 +68,7 @@ class FilesTestCase(unittest.TestCase):
     pass
 
 
-for year in [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022]:
+for year in [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023]:
     for half_year in ["01", "02"]:
         for lor_area_type in ["districts", "forecast-areas", "district-regions", "planning-areas"]:
             file = os.path.join(data_path, f"{key_figure_group}-{year}-{half_year}",
