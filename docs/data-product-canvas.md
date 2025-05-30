@@ -826,6 +826,17 @@
 * [berlin-lor-population-2024-02-forecast-areas.geojson](https://raw.githubusercontent.com/open-lifeworlds/open-lifeworlds-data-product-berlin-lor-population/main/data/03-gold/berlin-lor-population-geojson/berlin-lor-population-2024-02-forecast-areas.geojson)
 * [berlin-lor-population-2024-02-planning-areas.geojson](https://raw.githubusercontent.com/open-lifeworlds/open-lifeworlds-data-product-berlin-lor-population/main/data/03-gold/berlin-lor-population-geojson/berlin-lor-population-2024-02-planning-areas.geojson)
 
+### Berlin Lor Population Statistics
+
+* owner: Open Lifeworlds
+* url: https://github.com/open-lifeworlds/open-lifeworlds-data-product-berlin-lor-population/tree/main/data/03-gold/berlin-lor-population-statistics
+* license: CC-BY 4.0
+* updated: 2025-06-30
+
+**Files**
+
+* [berlin-lor-population-statistics.json](https://raw.githubusercontent.com/open-lifeworlds/open-lifeworlds-data-product-berlin-lor-population/main/data/03-gold/berlin-lor-population-statistics/berlin-lor-population-statistics.json)
+
 ## Classification
 
 **The nature of the exposed data (source-aligned, aggregate, consumer-aligned)**

@@ -927,6 +927,17 @@ output_ports:
       - https://raw.githubusercontent.com/open-lifeworlds/open-lifeworlds-data-product-berlin-lor-population/main/data/03-gold/berlin-lor-population-geojson/berlin-lor-population-2024-02-districts.geojson
       - https://raw.githubusercontent.com/open-lifeworlds/open-lifeworlds-data-product-berlin-lor-population/main/data/03-gold/berlin-lor-population-geojson/berlin-lor-population-2024-02-forecast-areas.geojson
       - https://raw.githubusercontent.com/open-lifeworlds/open-lifeworlds-data-product-berlin-lor-population/main/data/03-gold/berlin-lor-population-geojson/berlin-lor-population-2024-02-planning-areas.geojson
+  - id: berlin-lor-population-statistics
+    metadata:
+      name: Berlin Lor Population Statistics
+      owner: Open Lifeworlds
+      description:
+      url: https://github.com/open-lifeworlds/open-lifeworlds-data-product-berlin-lor-population/tree/main/data/03-gold/berlin-lor-population-statistics
+      license: CC-BY 4.0
+      updated: 2025-06-30
+      schema:
+    files:
+      - https://raw.githubusercontent.com/open-lifeworlds/open-lifeworlds-data-product-berlin-lor-population/main/data/03-gold/berlin-lor-population-statistics/berlin-lor-population-statistics.json
 observability:
   quality:
   operational:
