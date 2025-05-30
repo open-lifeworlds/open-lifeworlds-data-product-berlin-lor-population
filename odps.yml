@@ -1,0 +1,24 @@
+---
+schema: https://opendataproducts.org/v3.1/schema/odps.yaml
+version: 3.1
+product:
+  dataHolder:
+    URL: "https://openlifeworlds.de"
+  en:
+    name: "Berlin LOR population"
+    productID: "berlin-lor-population"
+    valueProposition: "Combining Berlin LOR population data and geodata"
+    description: "Data product combining Berlin LOR population data and geodata"
+    productSeries: "Berlin Timeseries Series"
+    visibility: "public"
+    status: "active"
+    version: "1.0"
+    categories:
+      - timeseries
+    tags:
+      - Berlin
+      - population
+    type: "consumer-aligned"
+    logoURL: "https://raw.githubusercontent.com/open-lifeworlds/open-lifeworlds-berlin-lor-population/refs/heads/main/logo-with-text.png"
+    OutputFileFormats:
+      - geojson
